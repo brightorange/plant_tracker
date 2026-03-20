@@ -88,12 +88,12 @@ Each plant is stored as a dictionary with the following fields:
 
 ## Open to contributions
 
-# Display how overdue watering is
+### Display how overdue watering is
 
 Improve `view_plants.plants_info` function
 If the plant needs watering, display how overdue the date in `status` field.
 
-#  Add information about water need
+###  Add information about water need
 
 Add new text field to plant that show how much water is need, is it high-watered or draught-tolerant
 

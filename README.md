@@ -88,12 +88,23 @@ Each plant is stored as a dictionary with the following fields:
 
 ## Open to contributions
 
-### Display how overdue watering is
+Contributions are welcome. If you want to help, these are good next features:
 
-Improve `view_plants.plants_info` function
-If the plant needs watering, display how overdue the date in `status` field.
+### 1) Show overdue days in status
 
-###  Add information about water need
+- **Goal**: show how many days a plant is overdue, not only `>>> WATER NOW <<<`
+- **Where**: `water_plants.py` (`next_watering_date`, `need_water`) and `view_plants.py` (`plants_info`)
+- **Example output**: `>>> WATER NOW (3 days overdue) <<<`
 
-Add new text field to plant that show how much water is need, is it high-watered or draught-tolerant
+### 2) Add water-need profile per plant
+
+- **Goal**: support a field like `water_need` (`low`, `medium`, `high`)
+- **Where**: `add_plants.py` (input + validation), `edit_plant.py` (editing), `view_plants.py` (display), `data/dummy.csv` and `load_data.py` (parsing)
+
+### 3) Improve water interval validation
+
+- **Goal**: validate `water_interval_days` with a realistic range (for example `1..180`)
+- **Where**: `add_plants.py`, `edit_plant.py`  
+
+
 

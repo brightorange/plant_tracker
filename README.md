@@ -85,3 +85,15 @@ Each plant is stored as a dictionary with the following fields:
 | `location` | string | `salon` |
 | `last_watered` | string `YYYY-MM-DD` | `2026-03-01` |
 | `water_interval_days` | integer | `7` |
+
+## Open to contributions
+
+# Display how overdue watering is
+
+Improve `view_plants.plants_info` function
+If the plant needs watering, display how overdue the date in `status` field.
+
+#  Add information about water need
+
+Add new text field to plant that show how much water is need, is it high-watered or draught-tolerant
+

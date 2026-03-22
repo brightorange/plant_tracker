@@ -66,12 +66,12 @@ def edit_plant(plant_list):
             new_water_interval_days = input("Enter new water interval in days:\n")
             if new_water_interval_days == "exit":
                 continue
-            elif new_water_interval_days.isdigit():
+            elif new_water_interval_days.isdigit() and 0 < int(new_water_interval_days) <= 180:
                 plant["water_interval_days"] = int(new_water_interval_days)
                 print("Water interval updated.\n")
                 continue
             else:
-                print("Invalid input, please enter a positive whole number (e.g. 7)\n")
+                print("Invalid input, please enter a whole number from 1 to 180 (e.g. 7)\n")
                 continue
 
         else:

@@ -13,6 +13,10 @@ def need_water(plant):
     next_date = next_watering_date(plant)
     return next_date <= date.today()
 
+def overdue_days_since_need_water(plant):
+    next_watering = next_watering_date(plant)
+    return (date.today() - next_watering).days
+    
 
 def get_plants_needing_water(plant_list, location=None):
     """Return a list of plants that need watering today, optionally filtered by location."""

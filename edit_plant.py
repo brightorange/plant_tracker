@@ -67,6 +67,10 @@ def edit_plant(plant_list):
             if new_water_interval_days == "exit":
                 continue
             elif new_water_interval_days.isdigit() and 0 < int(new_water_interval_days) <= 180:
+                if int(new_water_interval_days) > 30:
+                    print("Are you sure that this plant needs watering less than once per month?\n")
+                    if input("Please enter Y to confirm, or N to re-enter the water interval\n").lower() != "y":
+                        continue
                 plant["water_interval_days"] = int(new_water_interval_days)
                 print("Water interval updated.\n")
                 continue

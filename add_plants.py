@@ -48,6 +48,10 @@ def add_plants(plant_list):
             if input_water_interval_days.lower() == "exit":
                 break
             if input_water_interval_days.isdigit() and 0 < int(input_water_interval_days) <= 180:
+                if int(input_water_interval_days) > 30:
+                    print("Are you sure that this plant needs watering less than once per month?\n")
+                    if input("Please enter Y to confirm, or N to re-enter the water interval\n").lower() != "y":
+                        continue
                 new_plant["water_interval_days"] = int(input_water_interval_days)
                 break
             print("Invalid input, please enter a whole number from 1 to 180 (e.g. 7)\n")

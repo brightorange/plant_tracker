@@ -2,10 +2,12 @@ import re
 
 def edit_plant(plant_list):
     """Prompt for a plant name then interactively edit its fields via a sub-menu.
+
     Allows updating name (with uniqueness check), location, last watered date,
     and watering interval. The edit submenu runs until the user enters 'exit'.
     Returns the updated plant_list.
     """
+
     plant_name = input("Enter the name of the plant to edit, or 'exit' to go back:\n")
     if plant_name.lower() == "exit":
         return plant_list
@@ -20,12 +22,14 @@ def edit_plant(plant_list):
     while True:
         print(f"Editing '{plant['name']}'. What would you like to change?")
         input_option=input("""
-        1. Name
-        2. Location
-        3. Last watered
-        4. Water interval
-        Please enter 'exit' to go back to the main menu.
-        """)
+1. Name
+2. Location
+3. Last watered
+4. Water interval
+5. Water need
+
+Please enter 'exit' to go back to the main menu.
+""")
 
         if input_option == "exit":
             return plant_list
@@ -41,7 +45,7 @@ def edit_plant(plant_list):
             else:
                 plant["name"] = new_name
                 print("Name updated.\n")
-          
+
         elif input_option == "2":
             new_location = input("Enter new location:\n")
             if new_location == "exit":
@@ -78,9 +82,18 @@ def edit_plant(plant_list):
                 print("Invalid input, please enter a whole number from 1 to 180 (e.g. 7)\n")
                 continue
 
+        elif input_option == "5":
+            new_water_need = input("Enter new water need (low / medium / high):\n").strip().lower()
+            if new_water_need == "exit":
+                continue
+            elif new_water_need in ["low", "medium", "high"]:
+                plant["water_need"] = new_water_need
+                print("Water need updated.\n")
+                continue
+            else:
+                print("Invalid input, please enter one of: low, medium, high\n")
+                continue
+
         else:
-            print("Invalid option, please choose 1-4.\n")
+            print("Invalid option, please choose 1-5.\n")
             continue
-
-
-        

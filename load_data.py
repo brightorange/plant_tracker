@@ -9,11 +9,13 @@ def load_data(plant_list):
     appending to it. Duplicate names are skipped in append mode.
     Returns the updated plant_list.
     """
+
     print("""
-    How would you like to load the dummy data?
-    1. Replace existing data
-    2. Append to existing data
-    """)
+How would you like to load the dummy data?
+1. Replace existing data
+2. Append to existing data
+""")
+
     mode = input("Enter option number, or 'exit' to cancel:\n")
 
     if mode.lower() == "exit":
@@ -21,6 +23,7 @@ def load_data(plant_list):
 
     if mode == "1":
         plant_list = read_dummy_data()
+
     elif mode == "2":
         new_plants = read_dummy_data()
         existing_names = set()
@@ -31,12 +34,12 @@ def load_data(plant_list):
                 print(f"A plant named '{plant['name']}' already exists. Skipping...\n")
             else:
                 plant_list.append(plant)
+
     else:
         print("Invalid option, no data loaded.\n")
         return plant_list
 
     return plant_list
-
 
 def read_dummy_data():
     """Read and parse the dummy CSV file, returning a list of plant dicts."""
@@ -44,13 +47,17 @@ def read_dummy_data():
     try:
         with open(DUMMY_DATA_PATH, 'r') as file:
             for row in csv.reader(file):
-                if len(row) != 4:
+                if len(row) < 4:
                     continue
+                water_need = row[4].strip().lower() if len(row) >= 5 else "medium"
+                if water_need not in ["low", "medium", "high"]:
+                    water_need = "medium"
                 plants.append({
                     "name": row[0].strip(),
                     "location": row[1].strip(),
                     "last_watered": row[2].strip(),
-                    "water_interval_days": int(row[3].strip())
+                    "water_interval_days": int(row[3].strip()),
+                    "water_need": water_need
                 })
     except FileNotFoundError:
         print(f"File '{DUMMY_DATA_PATH}' not found.\n")

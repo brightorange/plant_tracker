@@ -7,12 +7,14 @@ def add_plants(plant_list):
     and the watering interval is a positive integer. Loops until the user
     types 'exit' at the name prompt, then returns the updated plant_list.
     """
+
     while True:
         new_plant = {
             "name": None,
             "location": None,
             "last_watered": None,
-            "water_interval_days": None
+            "water_interval_days": None,
+            "water_need": None
         }
 
         new_plant["name"] = input("Please enter the name of the plant, or 'exit' to go back\n")
@@ -24,6 +26,7 @@ def add_plants(plant_list):
             if plant["name"].lower() == new_plant["name"].lower():
                 duplicate_name = True
                 break
+
         if duplicate_name:
             print(f"A plant named '{new_plant['name']}' already exists. Please choose a different name.\n")
             continue
@@ -40,6 +43,7 @@ def add_plants(plant_list):
                 new_plant["last_watered"] = last_watered_date
                 break
             print("Invalid date format, please use YYYY-MM-DD (e.g. 2026-03-15)\n")
+
         if new_plant["last_watered"] is None:
             continue
 
@@ -55,7 +59,20 @@ def add_plants(plant_list):
                 new_plant["water_interval_days"] = int(input_water_interval_days)
                 break
             print("Invalid input, please enter a whole number from 1 to 180 (e.g. 7)\n")
+
         if new_plant["water_interval_days"] is None:
+            continue
+
+        while True:
+            input_water_need = input("Please enter the water need of the plant (low / medium / high), or 'exit' to cancel this plant\n").strip().lower()
+            if input_water_need == "exit":
+                break
+            if input_water_need in ["low", "medium", "high"]:
+                new_plant["water_need"] = input_water_need
+                break
+            print("Invalid input, please enter one of: low, medium, high\n")
+
+        if new_plant["water_need"] is None:
             continue
 
         plant_list.append(new_plant)

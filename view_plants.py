@@ -1,4 +1,4 @@
-from water_plants import get_plants_needing_water, need_water, next_watering_date
+from water_plants import get_plants_needing_water, need_water, next_watering_date , overdue_days_since_need_water
 
 def view_plants_menu(plant_list):
     """Handle one view-menu interaction and return the result.
@@ -78,7 +78,9 @@ def plants_info(plant_list):
     for p in plant_list:
         next_date = next_watering_date(p)
         next_str = str(next_date) if next_date else "N/A"
-        status = ">>> WATER NOW <<<" if need_water(p) else ""
+        if need_water(p):
+            overdue = overdue_days_since_need_water(p)
+            status = f">>> WATER NOW ({overdue} days overdue) <<<"
         plants_info += f"{p['name']:<20} {p['location']:<20} {p['last_watered']:<15} {str(p['water_interval_days']):<16} {next_str:<15} {status}\n"
 
     return plants_info

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Add plant &middot; Plant Tracker{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Add a plant</h1>
+        <p class="muted">All fields are required.</p>
+    </div>
+</section>
+
+<div class="card">
+    <form method="post" class="form">
+        <label>
+            Name
+            <input type="text" name="name" required value="{{ form.name or '' }}" placeholder="monstera">
+        </label>
+        <label>
+            Location
+            <input type="text" name="location" required value="{{ form.location or '' }}" placeholder="lobby">
+        </label>
+        <label>
+            Last watered
+            <input type="date" name="last_watered" required value="{{ form.last_watered or '' }}">
+        </label>
+        <label>
+            Water interval (days)
+            <input type="number" name="water_interval_days" min="1" required
+                   value="{{ form.water_interval_days or '' }}" placeholder="7">
+        </label>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Add plant</button>
+            <a href="{{ url_for('index') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

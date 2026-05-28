@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Edit {{ plant.name }} &middot; Plant Tracker{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Edit {{ original_name }}</h1>
+        <p class="muted">Update any field below.</p>
+    </div>
+</section>
+
+<div class="card">
+    <form method="post" class="form">
+        <label>
+            Name
+            <input type="text" name="name" required value="{{ plant.name }}">
+        </label>
+        <label>
+            Location
+            <input type="text" name="location" required value="{{ plant.location }}">
+        </label>
+        <label>
+            Last watered
+            <input type="date" name="last_watered" required value="{{ plant.last_watered }}">
+        </label>
+        <label>
+            Water interval (days)
+            <input type="number" name="water_interval_days" min="1" required value="{{ plant.water_interval_days }}">
+        </label>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <a href="{{ url_for('index') }}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

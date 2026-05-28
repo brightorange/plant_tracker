@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Summary &middot; Plant Tracker{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Collection summary</h1>
+    </div>
+</section>
+
+<section class="stats">
+    <div class="stat-card">
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-label">Total plants</div>
+    </div>
+    <div class="stat-card {% if needing|length > 0 %}stat-warn{% endif %}">
+        <div class="stat-value">{{ needing|length }}</div>
+        <div class="stat-label">Need watering now</div>
+    </div>
+</section>
+
+{% if needing %}
+<div class="card">
+    <h2>Need watering today</h2>
+    <ul class="needing-list">
+        {% for p in needing %}
+            <li>
+                <strong>{{ p.name }}</strong>
+                <span class="muted">&middot; {{ p.location }} &middot; next was due {{ p.next_watering }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+    <form action="{{ url_for('water_needing') }}" method="post">
+        <button class="btn btn-primary" type="submit">Mark all watered today</button>
+    </form>
+</div>
+{% endif %}
+
+{% if plants %}
+<div class="card no-pad">
+    <table class="plants">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Last watered</th>
+                <th>Interval (days)</th>
+                <th>Next watering</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in plants %}
+            <tr class="{% if p.needs_water %}row-overdue{% endif %}">
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.location }}</td>
+                <td>{{ p.last_watered }}</td>
+                <td>{{ p.water_interval_days }}</td>
+                <td>{{ p.next_watering }}</td>
+                <td>
+                    {% if p.needs_water %}
+                        <span class="badge badge-overdue">Water now</span>
+                    {% else %}
+                        <span class="badge badge-ok">OK</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

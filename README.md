@@ -1,83 +1,80 @@
 # Plant Tracker
 
-A command-line application for managing your plant collection. Track your plants, their locations, and watering schedules.
+A web application (Flask) for managing your plant collection. Track plants, their locations, and watering schedules from a clean browser UI. A legacy CLI version is still available via `main.py`.
 
 ## Features
 
-- **Add plants** — Enter name, location, last watered date, and watering interval. Duplicate names are rejected; keep adding until `exit`.
-- **View plants** — Browse your collection filtered by all, name, location, or plants that need watering now. Displays a table with each plant's next watering date and a `>>> WATER NOW <<<` indicator when overdue.
-- **Remove plants** — Remove plants by exact name in a loop until you type `exit`.
-- **Edit plant** — Update name, location, last watered date, or watering interval from an interactive menu.
-- **Water plants** — Mark plants as watered today. Filter by plants that need water now: all of them, all in chosen location, one plant by name.
-- **Load dummy data** — Populate the app with 15 sample plants from `data/dummy.csv` for testing.
+- **Plant list** — Browse all plants in a table with name, location, last watered date, watering interval, next watering date, and a clear "Water now" badge when overdue.
+- **Filtering & search** — Filter by all plants, by name, by location, or only plants that need water now.
+- **Add / Edit / Remove** — Forms with validation (unique name, YYYY-MM-DD date, positive integer interval).
+- **Water plants** — One-click "Water" per row, "Water all that need water" from the home page, or "Water all at location <name>".
+- **Summary view** — Stat cards for total plants and overdue plants, plus a quick list of plants that need water today.
+- **Dummy data loader** — Append or replace from `data/dummy.csv` (15 sample plants).
+- **Persistence** — Plants are stored in `data/plants.json` between runs.
 
 ## Project Structure
 
 ```
-python_final/
-├── main.py           # Entry point; runs the main menu loop
-├── add_plants.py     # Add one or more plants with validation
-├── edit_plants.py    # Edit fields of an existing plant
-├── remove_plants.py  # Remove plants by name until exit
-├── view_plants.py    # Display plants in a table with filters
-├── water_plants.py   # Water plants; shared need_water / next_watering_date logic
-├── load_data.py      # Load sample plant data from CSV
+plant_tracker-1/
+├── app.py             # Flask web app (routes, validation, controllers)
+├── storage.py         # JSON-file persistence (data/plants.json)
+├── water_plants.py    # Shared logic: need_water / next_watering_date
+├── load_data.py       # Read sample plants from CSV
+├── main.py            # Legacy CLI entry point (still works)
+├── add_plants.py      # CLI: add plants
+├── edit_plant.py      # CLI: edit a plant
+├── remove_plants.py   # CLI: remove plants
+├── view_plants.py     # CLI: view plants / summary
+├── templates/         # Jinja templates (base, index, add, edit, summary)
+├── static/style.css   # App styling
 └── data/
-    └── dummy.csv     # 15 sample plants across 7 locations
+    ├── dummy.csv      # 15 sample plants across 7 locations
+    └── plants.json    # Created on first save (gitignored)
 ```
 
 ## Getting Started
 
-### Running the App
+### 1. Create a virtual environment and install dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. Run the web app
+
+```bash
+python app.py
+```
+
+Then open <http://127.0.0.1:5000> in your browser.
+
+### Alternative: run the CLI
 
 ```bash
 python main.py
 ```
 
-### Main Menu
+(The CLI keeps plants only in memory for the current session.)
 
-```
-1. Add plants
-2. View plants
-3. Remove plants
-4. Edit plant
-5. Water plants!
-6. View summary
-7. Load dummy data from file
-8. Exit
-```
+## Routes
 
-### View Plants Sub-menu
-
-```
-1. All
-2. Name
-3. Location
-4. Need watering now
-```
-
-### Water Plants Sub-menu
-
-```
-1. All plants that need water now
-2. All plants at a location
-3. A single plant by name
-```
-
-### Edit Plant Sub-menu
-
-```
-1. Name
-2. Location
-3. Last watered date
-4. Water interval (days)
-```
-
-Enter `exit` at prompts to return to the previous menu.
+| Method | Path                  | Description                                            |
+|--------|-----------------------|--------------------------------------------------------|
+| GET    | `/`                   | List plants, with optional `?filter=` and `?q=`        |
+| GET/POST | `/add`              | Add a new plant                                        |
+| GET/POST | `/edit/<name>`      | Edit an existing plant                                 |
+| POST   | `/delete/<name>`      | Remove a plant                                         |
+| POST   | `/water/<name>`       | Mark a single plant as watered today                   |
+| POST   | `/water-needing`      | Water all plants that need water now                   |
+| POST   | `/water-location`     | Water all plants at a given location                   |
+| POST   | `/load-dummy`         | Load `data/dummy.csv` (`mode=append` or `mode=replace`)|
+| GET    | `/summary`            | Collection summary                                     |
 
 ## Plant Data Format
 
-Each plant is stored as a dictionary with the following fields:
+Each plant is stored as a JSON object with the following fields:
 
 | Field | Type | Example |
 |---|---|---|
@@ -88,23 +85,19 @@ Each plant is stored as a dictionary with the following fields:
 
 ## Open to contributions
 
-Contributions are welcome. If you want to help, these are good next features:
+Contributions are welcome. Good next features:
 
 ### 1) Show overdue days in status
 
-- **Goal**: show how many days a plant is overdue, not only `>>> WATER NOW <<<`
-- **Where**: `water_plants.py` (`next_watering_date`, `need_water`) and `view_plants.py` (`plants_info`)
-- **Example output**: `>>> WATER NOW (3 days overdue) <<<`
+- **Goal**: show how many days a plant is overdue alongside the "Water now" badge.
+- **Where**: `water_plants.py` (`next_watering_date`, `need_water`), `app.py` (`_decorate`), and `templates/index.html`.
 
 ### 2) Add water-need profile per plant
 
-- **Goal**: support a field like `water_need` (`low`, `medium`, `high`)
-- **Where**: `add_plants.py` (input + validation), `edit_plant.py` (editing), `view_plants.py` (display), `data/dummy.csv` and `load_data.py` (parsing)
+- **Goal**: support a field like `water_need` (`low`, `medium`, `high`).
+- **Where**: `app.py` (forms + validation), `templates/add.html` / `edit.html`, `data/dummy.csv`, `load_data.py`.
 
 ### 3) Improve water interval validation
 
-- **Goal**: validate `water_interval_days` with a realistic range (for example `1..180`)
-- **Where**: `add_plants.py`, `edit_plant.py`  
-
-
-
+- **Goal**: validate `water_interval_days` with a realistic range (for example `1..180`).
+- **Where**: `app.py` validation in `/add` and `/edit/<name>`.

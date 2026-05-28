@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Plants &middot; Plant Tracker{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div>
+        <h1>Your plants</h1>
+        <p class="muted">
+            {{ total }} plant{{ '' if total == 1 else 's' }} in your collection
+            &middot; <strong>{{ needing_water }}</strong> need water now
+        </p>
+    </div>
+    <div class="hero-actions">
+        <form action="{{ url_for('water_needing') }}" method="post">
+            <button type="submit" class="btn btn-primary" {% if needing_water == 0 %}disabled{% endif %}>
+                Water {{ needing_water }} plant{{ '' if needing_water == 1 else 's' }} now
+            </button>
+        </form>
+        <form action="{{ url_for('load_dummy') }}" method="post" class="inline">
+            <input type="hidden" name="mode" value="append">
+            <button type="submit" class="btn btn-ghost">Load dummy data</button>
+        </form>
+    </div>
+</section>
+
+<section class="card">
+    <form action="{{ url_for('index') }}" method="get" class="filters">
+        <label>
+            Filter
+            <select name="filter">
+                <option value="all" {% if filter_by == 'all' %}selected{% endif %}>All plants</option>
+                <option value="name" {% if filter_by == 'name' %}selected{% endif %}>By name</option>
+                <option value="location" {% if filter_by == 'location' %}selected{% endif %}>By location</option>
+                <option value="needs_water" {% if filter_by == 'needs_water' %}selected{% endif %}>Need water now</option>
+            </select>
+        </label>
+        <label class="grow">
+            Search
+            <input type="text" name="q" value="{{ query }}" placeholder="name or location">
+        </label>
+        <button type="submit" class="btn">Apply</button>
+        {% if filter_by != 'all' or query %}
+            <a class="btn btn-ghost" href="{{ url_for('index') }}">Clear</a>
+        {% endif %}
+    </form>
+
+    <form action="{{ url_for('water_location') }}" method="post" class="filters">
+        <label class="grow">
+            Water all at location
+            <input type="text" name="location" placeholder="e.g. lobby" required>
+        </label>
+        <button type="submit" class="btn">Water location</button>
+    </form>
+</section>
+
+{% if plants %}
+<div class="card no-pad">
+    <table class="plants">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Last watered</th>
+                <th>Interval (days)</th>
+                <th>Next watering</th>
+                <th>Status</th>
+                <th class="actions-col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in plants %}
+            <tr class="{% if p.needs_water %}row-overdue{% endif %}">
+                <td><strong>{{ p.name }}</strong></td>
+                <td>{{ p.location }}</td>
+                <td>{{ p.last_watered }}</td>
+                <td>{{ p.water_interval_days }}</td>
+                <td>{{ p.next_watering }}</td>
+                <td>
+                    {% if p.needs_water %}
+                        <span class="badge badge-overdue">Water now</span>
+                    {% else %}
+                        <span class="badge badge-ok">OK</span>
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <form action="{{ url_for('water_one', name=p.name) }}" method="post" class="inline">
+                        <button class="btn btn-small" type="submit">Water</button>
+                    </form>
+                    <a class="btn btn-small btn-ghost" href="{{ url_for('edit', name=p.name) }}">Edit</a>
+                    <form action="{{ url_for('delete', name=p.name) }}" method="post" class="inline"
+                          onsubmit="return confirm('Remove {{ p.name }}?');">
+                        <button class="btn btn-small btn-danger" type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card empty">
+    <h2>No plants to show</h2>
+    <p class="muted">Add your first plant or load the bundled dummy data to get started.</p>
+    <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ url_for('add') }}">+ Add plant</a>
+        <form action="{{ url_for('load_dummy') }}" method="post" class="inline">
+            <input type="hidden" name="mode" value="replace">
+            <button type="submit" class="btn btn-ghost">Load dummy data</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

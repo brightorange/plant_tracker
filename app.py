@@ -6,7 +6,7 @@ from datetime import date
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 from load_data import read_dummy_data
-from storage import load_plants, save_plants
+from storage import DATA_PATH, load_plants, save_plants
 from water_plants import (
     get_plants_needing_water,
     need_water,
@@ -25,6 +25,19 @@ def _find_plant(plant_list, name):
         if plant["name"].lower() == name.lower():
             return plant
     return None
+
+
+def _persist(plant_list, success_message):
+    """Save plant_list; flash success or a writable-data error. Returns True if saved."""
+    if save_plants(plant_list):
+        flash(success_message, "success")
+        return True
+    flash(
+        "Could not save plant data. Ensure the data directory is writable by the web server "
+        f"(see {DATA_PATH}).",
+        "error",
+    )
+    return False
 
 
 def _decorate(plant_list):
@@ -108,8 +121,16 @@ def add():
             "last_watered": last_watered,
             "water_interval_days": int(interval_raw),
         })
-        save_plants(plant_list)
-        flash(f"Plant '{name}' added successfully.", "success")
+        if not _persist(plant_list, f"Plant '{name}' added successfully."):
+            return render_template(
+                "add.html",
+                form={
+                    "name": name,
+                    "location": location,
+                    "last_watered": last_watered,
+                    "water_interval_days": interval_raw,
+                },
+            )
         return redirect(url_for("index"))
 
     return render_template("add.html", form={})
@@ -158,8 +179,13 @@ def edit(name):
         plant["location"] = new_location
         plant["last_watered"] = new_last_watered
         plant["water_interval_days"] = int(new_interval_raw)
-        save_plants(plant_list)
-        flash(f"Plant '{new_name}' updated.", "success")
+        if not _persist(plant_list, f"Plant '{new_name}' updated."):
+            return render_template("edit.html", plant={
+                "name": new_name,
+                "location": new_location,
+                "last_watered": new_last_watered,
+                "water_interval_days": new_interval_raw,
+            }, original_name=plant["name"])
         return redirect(url_for("index"))
 
     return render_template("edit.html", plant=plant, original_name=plant["name"])
@@ -174,8 +200,7 @@ def delete(name):
         flash(f"No plant named '{name}' found.", "error")
     else:
         plant_list.remove(plant)
-        save_plants(plant_list)
-        flash(f"Plant '{name}' removed.", "success")
+        _persist(plant_list, f"Plant '{name}' removed.")
     return redirect(url_for("index"))
 
 
@@ -188,8 +213,7 @@ def water_one(name):
         flash(f"No plant named '{name}' found.", "error")
     else:
         plant["last_watered"] = str(date.today())
-        save_plants(plant_list)
-        flash(f"'{name}' watered today.", "success")
+        _persist(plant_list, f"'{name}' watered today.")
     return redirect(request.referrer or url_for("index"))
 
 
@@ -201,8 +225,7 @@ def water_needing():
     needing = get_plants_needing_water(plant_list)
     for plant in needing:
         plant["last_watered"] = today
-    save_plants(plant_list)
-    flash(f"Watered {len(needing)} plant(s) that needed water.", "success")
+    _persist(plant_list, f"Watered {len(needing)} plant(s) that needed water.")
     return redirect(url_for("index"))
 
 
@@ -219,9 +242,8 @@ def water_location():
     needing = get_plants_needing_water(plant_list, location=location)
     for plant in needing:
         plant["last_watered"] = today
-    save_plants(plant_list)
     if needing:
-        flash(f"Watered {len(needing)} plant(s) at '{location}'.", "success")
+        _persist(plant_list, f"Watered {len(needing)} plant(s) at '{location}'.")
     else:
         flash(f"No plants at '{location}' need water right now.", "info")
     return redirect(url_for("index"))
@@ -234,8 +256,7 @@ def load_dummy():
     new_plants = read_dummy_data()
 
     if mode == "replace":
-        save_plants(new_plants)
-        flash(f"Loaded {len(new_plants)} plant(s) from dummy data (replaced existing).", "success")
+        _persist(new_plants, f"Loaded {len(new_plants)} plant(s) from dummy data (replaced existing).")
         return redirect(url_for("index"))
 
     plant_list = load_plants()
@@ -249,8 +270,7 @@ def load_dummy():
             plant_list.append(plant)
             existing_names.add(plant["name"].lower())
             added += 1
-    save_plants(plant_list)
-    flash(f"Loaded {added} plant(s) from dummy data; skipped {skipped} duplicate(s).", "success")
+    _persist(plant_list, f"Loaded {added} plant(s) from dummy data; skipped {skipped} duplicate(s).")
     return redirect(url_for("index"))
 
 

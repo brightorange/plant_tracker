@@ -8,4 +8,9 @@ if PROJECT_DIR not in sys.path:
 
 os.chdir(PROJECT_DIR)
 
+from storage import DATA_DIR, DATA_PATH  # noqa: E402
+
+if not os.path.isdir(DATA_DIR):
+    os.makedirs(DATA_DIR, exist_ok=True)
+
 from app import app as application  # noqa: E402  (Apache looks for `application`)

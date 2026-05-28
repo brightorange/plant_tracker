@@ -1,6 +1,8 @@
 import csv
+import os
 
-DUMMY_DATA_PATH = "data/dummy.csv"
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DUMMY_DATA_PATH = os.path.join(_BASE_DIR, "data", "dummy.csv")
 
 def load_data(plant_list):
     """Load plants from the dummy CSV file into plant_list.

@@ -8,6 +8,10 @@ if PROJECT_DIR not in sys.path:
 
 os.chdir(PROJECT_DIR)
 
+# Apache SetEnv often does not reach mod_wsgi; use /var/lib on Linux servers.
+if "PLANT_TRACKER_DATA_DIR" not in os.environ and sys.platform.startswith("linux"):
+    os.environ["PLANT_TRACKER_DATA_DIR"] = "/var/lib/plant-tracker"
+
 from storage import DATA_DIR, DATA_PATH  # noqa: E402
 
 if not os.path.isdir(DATA_DIR):

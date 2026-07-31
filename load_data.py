@@ -2,7 +2,9 @@ import csv
 import os
 
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DUMMY_DATA_PATH = os.path.join(_BASE_DIR, "data", "dummy.csv")
+_DEFAULT_DATA_DIR = os.path.join(_BASE_DIR, "data")
+DATA_DIR = os.environ.get("PLANT_TRACKER_DATA_DIR", _DEFAULT_DATA_DIR)
+DUMMY_DATA_PATH = os.path.join(DATA_DIR, "dummy.csv")
 
 def load_data(plant_list):
     """Load plants from the dummy CSV file into plant_list.
